@@ -30,7 +30,7 @@ app.get("/users", (req, res) => {
     } else {
       // get data from remote API
       axios
-        .get("https://jsonplaceholder.typicode.com/users")
+        .get("https://service-03.azurewebsites.net/users")
         .then((res) => res.data)
         .then((users) => {
           // save the API response in redis store
