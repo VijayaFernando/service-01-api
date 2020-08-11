@@ -4,6 +4,9 @@ const redis = require("redis");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
+const multer = require("multer");
+const inMemoryStorage = multer.memoryStorage();
+const uploadStrategy = multer({ storage: inMemoryStorage }).single("image");
 
 const app = express();
 
@@ -51,6 +54,33 @@ app.get("/users", (req, res) => {
 
 // user details endpoint
 app.get("/", (req, res) => res.send("Service 01 - Working."));
+
+app.post("/file/upload", uploadStrategy, (req, res) => {
+  try {
+    axios
+      .post("https://service-02.azurewebsites.net/api/HttpTrigger", {
+        filedata: req.file.buffer,
+        filename: req.file.originalname,
+      })
+      .then((info) => {
+        if (info.status === 200) {
+          return res.status(200).json({
+            message: "Image Uploaded Successfully!",
+            statusCode: 200,
+          });
+        } else {
+          return res.status(200).json({
+            data: null,
+            message: "Image Upload failed!",
+            statusCode: 400,
+          });
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  } catch (err) {}
+});
 
 // start express server
 const PORT = process.env.PORT || 5000;
